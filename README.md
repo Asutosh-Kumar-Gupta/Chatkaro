@@ -42,6 +42,19 @@ A admin username and password added to database by default <br>
 **password: admin**
 
 Authorize using the above credentials and use different endpoints to create, delete, add [users,groups,message,likes]
+<br>Click on Authorize
+![img.png](img.png)
+Enter admin credentials
+![img_1.png](img_1.png)
+You are Authorize to access endpoints
+![img_2.png](img_2.png)
+Close the current pop up window, and access different endpoints!
+![img_3.png](img_3.png)
+
+Note: Create, edit user endpoints are only accessible to admin only
+And all other api such as create, delete [groups,message] etc are accessible only to normal user, so create a new user
+and then use these endpoints<br>
+Login,token are common to admin and normal user
 
 ## License
 

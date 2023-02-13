@@ -46,6 +46,17 @@ def test_create_user():
     assert response.json()["email"] == "testuser@gmail.com"
 
 
+def test_create_user_who_is_not_admin():
+    header = user_authentication_headers("testuser", "password")
+    response = client.post("/users/", json={
+        "username": "testuser2",
+        "full_name": "testuser2",
+        "email": "testuser2@gmail.com",
+        "password": "password"
+    }, headers=header)
+    assert response.status_code == 400
+
+
 def test_edit_user():
     header = user_authentication_headers("admin", "admin")
     response = client.put("/users/2", json={
@@ -58,10 +69,21 @@ def test_edit_user():
     assert response.json()["full_name"] == "testuser2"
 
 
+def test_edit_user_who_is_not_admin():
+    header = user_authentication_headers("testuser", "password")
+    response = client.put("/users/2", json={
+        "username": "testuser",
+        "full_name": "testuser2",
+        "email": "testuser@gmail.com",
+        "password": "password"
+    }, headers=header)
+    assert response.status_code == 400
+
+
 #
 #
-def test_create_group():
-    header = user_authentication_headers("admin", "admin")
+def test_create_group_for_normal_user():
+    header = user_authentication_headers("testuser", "password")
     response = client.post("/groups/", json={
         "name": "testgroup",
         "description": "group description"
@@ -70,15 +92,30 @@ def test_create_group():
     assert response.json()["name"] == "testgroup"
 
 
-def test_search_group():
+def test_create_group_for_admin():
     header = user_authentication_headers("admin", "admin")
+    response = client.post("/groups/", json={
+        "name": "testgroup",
+        "description": "group description"
+    }, headers=header)
+    assert response.status_code == 400
+
+
+def test_search_group_for_normal_user():
+    header = user_authentication_headers("testuser", "password")
     response = client.get("/groups/search?name=testgroup", headers=header)
     assert response.status_code == 200
     assert response.json()["groups"][0]["name"] == "testgroup"
 
 
-def test_add_members():
+def test_search_group_admin():
     header = user_authentication_headers("admin", "admin")
+    response = client.get("/groups/search?name=testgroup", headers=header)
+    assert response.status_code == 400
+
+
+def test_add_members_for_normal_user():
+    header = user_authentication_headers("testuser", "password")
 
     response = client.post("/groups/1/members?user_id=2", headers=header)
     assert response.status_code == 200
@@ -86,8 +123,15 @@ def test_add_members():
     assert response.json()["group_id"] == 1
 
 
-def test_send_message():
+def test_add_members_for_admin():
     header = user_authentication_headers("admin", "admin")
+
+    response = client.post("/groups/1/members?user_id=2", headers=header)
+    assert response.status_code == 400
+
+
+def test_send_message_for_normal_user():
+    header = user_authentication_headers("testuser", "password")
     response = client.post("/groups/1/messages/", json={
         "message": "TestMessage"
     }, headers=header)
@@ -95,36 +139,30 @@ def test_send_message():
     assert response.json()["message"] == "TestMessage"
     assert response.json()["group_id"] == 1
 
-def test_like_message():
+
+def test_send_message_for_admin():
     header = user_authentication_headers("admin", "admin")
+    response = client.post("/groups/1/messages/", json={
+        "message": "TestMessage"
+    }, headers=header)
+    assert response.status_code == 400
+
+
+def test_like_message_for_normal_user():
+    header = user_authentication_headers("testuser", "password")
     response = client.post("/groups/1/messages/1/likes/", headers=header)
     assert response.status_code == 200
     assert response.json()["message_id"] == 1
 
-def test_delete_group():
+
+def test_like_message_for_admin():
     header = user_authentication_headers("admin", "admin")
+    response = client.post("/groups/1/messages/1/likes/", headers=header)
+    assert response.status_code == 400
+
+
+def test_delete_group():
+    header = user_authentication_headers("testuser", "password")
     response = client.delete("/groups/1", headers=header)
     assert response.status_code == 200
     assert response.json() == {"message": "Group deleted"}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
