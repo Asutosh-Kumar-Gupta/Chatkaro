@@ -69,6 +69,8 @@ def update_user(user_id: int, user: schema.UserUpdate, db: Session = Depends(get
 def create_group(group: schema.GroupCreate, db: Session = Depends(get_db),
                  token: str = Depends(oauth2_scheme)):
     current_user = crud.get_current_user(db, token=token)
+    if current_user.is_admin:
+        raise HTTPException(status_code=400, detail="Admin cant create Group")
     return crud.create_group(db=db, group=group, user=current_user)
 
 
@@ -76,6 +78,8 @@ def create_group(group: schema.GroupCreate, db: Session = Depends(get_db),
 def update_group(group_id: int, group: schema.GroupUpdate, db: Session = Depends(get_db),
                  token: str = Depends(oauth2_scheme)):
     current_user = crud.get_current_user(db, token=token)
+    if current_user.is_admin:
+        raise HTTPException(status_code=400, detail="Admin cant update Group")
     return crud.update_group(db=db, group_id=group_id, group=group)
 
 
@@ -83,6 +87,8 @@ def update_group(group_id: int, group: schema.GroupUpdate, db: Session = Depends
 def delete_group(group_id: int, db: Session = Depends(get_db),
                  token: str = Depends(oauth2_scheme)):
     current_user = crud.get_current_user(db, token=token)
+    if current_user.is_admin:
+        raise HTTPException(status_code=400, detail="Admin cant delete Group")
     group = crud.get_group(db, group_id=group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
@@ -96,6 +102,8 @@ def delete_group(group_id: int, db: Session = Depends(get_db),
 @app.get("/groups/search")
 async def search_group(name: str, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     current_user = crud.get_current_user(db, token=token)
+    if current_user.is_admin:
+        raise HTTPException(status_code=400, detail="Admin cant search Group")
     groups = crud.search_groups(db, name)
     return {"groups": [{"id": group.id, "name": group.name, "description": group.description} for group in groups]}
 
@@ -104,6 +112,8 @@ async def search_group(name: str, db: Session = Depends(get_db), token: str = De
 def add_member_to_group(group_id: int, user_id: int, db: Session = Depends(get_db),
                         token: str = Depends(oauth2_scheme)):
     current_user = crud.get_current_user(db, token=token)
+    if current_user.is_admin:
+        raise HTTPException(status_code=400, detail="Admin cant add member to Group")
     group = crud.get_group(db, group_id=group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
@@ -119,6 +129,8 @@ def add_member_to_group(group_id: int, user_id: int, db: Session = Depends(get_d
 def remove_member_from_group(group_id: int, user_id: int, db: Session = Depends(get_db),
                              token: str = Depends(oauth2_scheme)):
     current_user = crud.get_current_user(db, token=token)
+    if current_user.is_admin:
+        raise HTTPException(status_code=400, detail="Admin cant remove member from Group")
     group = crud.get_group(db, group_id=group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
@@ -135,6 +147,8 @@ def remove_member_from_group(group_id: int, user_id: int, db: Session = Depends(
 def create_group_message(group_id: int, message: schema.MessageCreate, db: Session = Depends(get_db),
                          token: str = Depends(oauth2_scheme)):
     current_user = crud.get_current_user(db, token=token)
+    if current_user.is_admin:
+        raise HTTPException(status_code=400, detail="Admin cant create Group messages")
     group = crud.get_group(db, group_id=group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
@@ -147,6 +161,8 @@ def create_group_message(group_id: int, message: schema.MessageCreate, db: Sessi
 def like_group_message(group_id: int, message_id: int, db: Session = Depends(get_db),
                        token: str = Depends(oauth2_scheme)):
     current_user = crud.get_current_user(db, token=token)
+    if current_user.is_admin:
+        raise HTTPException(status_code=400, detail="Admin cant like messages")
     group = crud.get_group(db, group_id=group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
