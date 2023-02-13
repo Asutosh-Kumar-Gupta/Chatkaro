@@ -1,0 +1,5 @@
+venv
+.pytest_cache
+chat_database.db
+__pycache__/
+.idea/
